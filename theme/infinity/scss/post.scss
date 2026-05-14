@@ -1,0 +1,29 @@
+// Infinity Learn — brand overrides appended after Boost's compiled SCSS.
+
+$infinity-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #312E81 100%);
+
+body.path-login,
+body#page-login-index {
+    background: $infinity-gradient !important;
+    background-attachment: fixed !important;
+}
+
+#page-login-index .login-wrapper .card,
+#page-login-index .login-container .card {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.45) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6366F1, #4F46E5) !important;
+    border: none !important;
+}
+
+.navbar.fixed-top,
+.navbar-light {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+a, a:hover { color: #4F46E5; }

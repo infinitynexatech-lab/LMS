@@ -1,0 +1,51 @@
+services:
+  mariadb:
+    image: docker.io/bitnami/mariadb:11.4
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      MARIADB_USER: bn_moodle
+      MARIADB_DATABASE: bitnami_moodle
+      MARIADB_CHARACTER_SET: utf8mb4
+      MARIADB_COLLATE: utf8mb4_unicode_ci
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  moodle:
+    image: docker.io/bitnami/moodle:4.5
+    depends_on:
+      mariadb: { condition: service_healthy }
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      MOODLE_DATABASE_TYPE: mariadb
+      MOODLE_DATABASE_HOST: mariadb
+      MOODLE_DATABASE_PORT_NUMBER: "3306"
+      MOODLE_DATABASE_USER: bn_moodle
+      MOODLE_DATABASE_NAME: bitnami_moodle
+      ALLOW_EMPTY_PASSWORD: "yes"
+      MOODLE_USERNAME: admin
+      MOODLE_PASSWORD: AdminPass!2026
+      MOODLE_EMAIL: admin@local.dev
+      MOODLE_SITE_NAME: "Infinity Learn"
+      MOODLE_LANG: en
+      MOODLE_HOST: "localhost:8080"
+      BITNAMI_DEBUG: "false"
+    volumes:
+      - moodle_data:/bitnami/moodle
+      - moodledata_data:/bitnami/moodledata
+      # [!] Theme + local plugin overlays. Bitnami's image discovers these
+      # during its first-boot Moodle install. If you `up` once WITHOUT these
+      # mounts and then add them, you must `docker compose exec moodle \
+      #   php /bitnami/moodle/admin/cli/upgrade.php --non-interactive`.
+      - ./theme/infinity:/bitnami/moodle/theme/infinity:ro
+      - ./local/infinity:/bitnami/moodle/local/infinity:ro
+
+volumes:
+  mariadb_data:
+  moodle_data:
+  moodledata_data:
