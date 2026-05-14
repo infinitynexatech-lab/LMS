@@ -1,0 +1,46 @@
+# Infinity Learn — Caddy site block.
+#
+# This is a SNIPPET, not a standalone Caddyfile. Co-hosting on the existing
+# Infinity CRM CPX22 box, where Caddy already terminates TLS for crm.
+# infinitynexatech.com. Choose ONE of the two routing options below.
+#
+# ── Option A (recommended): single Caddy on the host (systemd) ─────────
+# Append this block to /etc/caddy/Caddyfile, then:  systemctl reload caddy
+#
+# lms.infinitynexatech.com {
+#     encode gzip zstd
+#     reverse_proxy localhost:8090 {
+#         header_up X-Forwarded-Proto https
+#         header_up X-Real-IP {remote_host}
+#     }
+#     header {
+#         -Server
+#         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+#         X-Content-Type-Options "nosniff"
+#         Referrer-Policy "strict-origin-when-cross-origin"
+#     }
+# }
+#
+# ── Option B: Caddy inside the existing CRM docker-compose ────────────
+# 1. In CRM's docker-compose.prod.yml under the caddy service, add:
+#        extra_hosts:
+#          - "host.docker.internal:host-gateway"
+# 2. Append this block (uncommented) to CRM's deploy/Caddyfile:
+
+lms.infinitynexatech.com {
+    encode gzip zstd
+    reverse_proxy host.docker.internal:8090 {
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
+    }
+    header {
+        -Server
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
+
+# Reload after editing:
+#   docker compose -f /opt/infinity-crm/docker-compose.prod.yml exec -T caddy \
+#     caddy reload --config /etc/caddy/Caddyfile

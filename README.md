@@ -7,11 +7,13 @@ This is a config-overlay fork: upstream Moodle stays untouched inside the image,
 ## Quick start (local)
 
 ```bash
-cp .env.example .env       # fill in DB_PASSWORD, ADMIN_PASSWORD
-docker compose up -d
+docker compose up -d                  # builds the image on first run (~5 min)
+docker compose logs -f moodle         # wait for install.php to finish (~2 min)
 ```
 
-Open http://localhost:8080 — log in with `admin / AdminPass!2026`.
+Open http://localhost:8081 — log in with `admin / AdminPass!2026`.
+
+`.env` is only required for production (`docker-compose.prod.yml`). See `.env.example`.
 
 ## Full rebuild guide
 

@@ -1,10 +1,11 @@
 services:
   mariadb:
     image: mariadb:11.4
+    restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: dev-root-pw
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MARIADB_USER: moodle
-      MARIADB_PASSWORD: moodle
+      MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: moodle
       MARIADB_CHARACTER_SET: utf8mb4
       MARIADB_COLLATE: utf8mb4_unicode_ci
@@ -15,34 +16,36 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -pdev-root-pw"]
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p${DB_ROOT_PASSWORD}"]
       interval: 10s
       retries: 10
 
   moodle:
     build: .
-    image: infinity-learn/moodle:dev
+    image: infinity-learn/moodle:prod
+    restart: unless-stopped
     depends_on:
       mariadb: { condition: service_healthy }
     ports:
-      # 8081 not 8080 — the Infinity CRM dev compose already uses 8080 for Corteza.
-      - "8081:80"
+      # Loopback only — Caddy on the host (or in CRM's compose) proxies in.
+      - "127.0.0.1:8090:80"
     environment:
       MOODLE_DATABASE_HOST: mariadb
       MOODLE_DATABASE_PORT: "3306"
       MOODLE_DATABASE_USER: moodle
-      MOODLE_DATABASE_PASSWORD: moodle
+      MOODLE_DATABASE_PASSWORD: ${DB_PASSWORD}
       MOODLE_DATABASE_NAME: moodle
       MOODLE_USERNAME: admin
-      MOODLE_PASSWORD: AdminPass!2026
-      MOODLE_EMAIL: admin@local.dev
+      MOODLE_PASSWORD: ${ADMIN_PASSWORD}
+      MOODLE_EMAIL: ${ADMIN_EMAIL}
       MOODLE_SITE_NAME: "Infinity Learn"
-      MOODLE_WWWROOT: "http://localhost:8081"
+      MOODLE_WWWROOT: "https://${DOMAIN}"
+      # [!] Required when Caddy terminates TLS upstream.
+      MOODLE_REVERSEPROXY: "true"
     volumes:
       - moodledata:/var/www/moodledata
-      # Live-mount theme + local plugin so edits take effect without rebuild.
-      - ./theme/infinity:/var/www/html/theme/infinity
-      - ./local/infinity:/var/www/html/local/infinity
+      - ./theme/infinity:/var/www/html/theme/infinity:ro
+      - ./local/infinity:/var/www/html/local/infinity:ro
 
 volumes:
   mariadb_data:

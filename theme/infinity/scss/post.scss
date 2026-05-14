@@ -2,28 +2,77 @@
 
 $infinity-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #312E81 100%);
 
+// ---------- Login page ----------
 body.path-login,
 body#page-login-index {
     background: $infinity-gradient !important;
     background-attachment: fixed !important;
 }
-
 #page-login-index .login-wrapper .card,
 #page-login-index .login-container .card {
     border: none !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.45) !important;
 }
+#page-login-index .login-divider {
+    border-color: #E2E8F0 !important;
+}
 
+// ---------- Buttons ----------
 .btn-primary {
     background: linear-gradient(135deg, #6366F1, #4F46E5) !important;
     border: none !important;
+    box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.4);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.55);
 }
 
+// ---------- Navigation ----------
 .navbar.fixed-top,
-.navbar-light {
+.primary-navigation .nav {
     background: #FFFFFF !important;
     border-bottom: 1px solid #E2E8F0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+.navbar-brand img { max-height: 36px; }
+
+// ---------- Links ----------
+a { color: #4F46E5; }
+a:hover { color: #4338CA; }
+
+// ---------- Dashboard / course cards ----------
+.dashboard-card,
+.course-card,
+.coursebox {
+    border-radius: 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.dashboard-card:hover,
+.course-card:hover,
+.coursebox:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.15);
 }
 
-a, a:hover { color: #4F46E5; }
+// ---------- Headings ----------
+h1, h2, h3 { letter-spacing: -0.02em; }
+h1 { font-weight: 800; }
+
+// ---------- Activity icons accent ----------
+.activityiconcontainer.assessment   { background-color: #FEF3C7 !important; color: #B45309 !important; }
+.activityiconcontainer.collaboration{ background-color: #DBEAFE !important; color: #1D4ED8 !important; }
+.activityiconcontainer.content      { background-color: #E0E7FF !important; color: #4338CA !important; }
+.activityiconcontainer.communication{ background-color: #FCE7F3 !important; color: #BE185D !important; }
+
+// ---------- Footer ----------
+#page-footer,
+.footer-dark {
+    background: #0F172A !important;
+    color: #94A3B8;
+}
+#page-footer a { color: #C7D2FE; }
