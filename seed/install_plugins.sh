@@ -10,14 +10,20 @@ COMPOSE_FILE="docker-compose.yml"
 
 in_moodle() { docker compose -f "$COMPOSE_FILE" exec -T moodle bash -lc "$1"; }
 
-echo "==> Installing Jitsi activity plugin (mod_jitsi)…"
-in_moodle '
-    cd /var/www/html/mod
-    [ -d jitsi ] || git clone --depth=1 https://github.com/UDIMA/moodle-mod_jitsi.git jitsi
-    chown -R www-data:www-data jitsi
-'
+# TODO Jitsi: the previous UDIMA/moodle-mod_jitsi URL is dead. Install via
+# Moodle's plugin directory UI for now (Site administration → Plugins →
+# Install plugins → search "Jitsi"), or pin a verified GitHub mirror here.
+#
+# echo "==> Installing Jitsi activity plugin (mod_jitsi)…"
+# in_moodle '
+#     cd /var/www/html/mod
+#     [ -d jitsi ] || git clone --depth=1 <VERIFIED_REPO_URL> jitsi
+#     chown -R www-data:www-data jitsi
+# '
 
-# Add other plugins here. Example (Stripe enrol, paste when ready):
+# Other plugins to consider (uncomment + verify URL when ready):
+#
+#   Stripe enrol — paid courses:
 #   in_moodle '[ -d /var/www/html/enrol/stripepayment ] || \
 #     git clone --depth=1 https://github.com/dualcube/moodle-enrol_stripepayment.git \
 #       /var/www/html/enrol/stripepayment'

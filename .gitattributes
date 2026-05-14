@@ -5,3 +5,4 @@ Dockerfile  text eol=lf
 *.yaml      text eol=lf
 *.php       text eol=lf
 *.scss      text eol=lf
+*.zip       binary

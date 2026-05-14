@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GDPR Essentials — Infinity Learn</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; padding: 32px;
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    color: #0F172A; min-height: 100vh;
+  }
+  main {
+    max-width: 720px; margin: 0 auto;
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 20px 60px -20px rgba(15, 23, 42, .25);
+    padding: 32px;
+  }
+  h1 { margin-top: 0; letter-spacing: -.02em; color: #4F46E5; }
+  .slide { display: none; }
+  .slide.active { display: block; }
+  .nav { display: flex; justify-content: space-between; margin-top: 24px; }
+  button {
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    color: #fff; border: 0; padding: 10px 18px; border-radius: 8px;
+    font-weight: 600; cursor: pointer;
+  }
+  button[disabled] { opacity: .4; cursor: not-allowed; }
+  .progress { color: #64748B; font-size: 14px; }
+  .status {
+    margin-top: 16px; padding: 10px 14px; border-radius: 8px;
+    background: #F1F5F9; color: #475569; font-size: 14px;
+  }
+  .status.ok { background: #DCFCE7; color: #166534; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>GDPR Essentials</h1>
+  <p class="progress" id="progress">Slide 1 of 3</p>
+
+  <section class="slide active" data-slide="1">
+    <h2>What is GDPR?</h2>
+    <p>The <strong>General Data Protection Regulation</strong> is the EU's data-protection law. It governs how organisations collect, store, process, and share personal data of EU residents.</p>
+    <p>Applies to any organisation handling EU personal data — regardless of where the organisation is based.</p>
+  </section>
+
+  <section class="slide" data-slide="2">
+    <h2>The seven core principles</h2>
+    <ul>
+      <li>Lawfulness, fairness and transparency</li>
+      <li>Purpose limitation</li>
+      <li>Data minimisation</li>
+      <li>Accuracy</li>
+      <li>Storage limitation</li>
+      <li>Integrity and confidentiality</li>
+      <li>Accountability</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-slide="3">
+    <h2>Your responsibilities</h2>
+    <ul>
+      <li>Only collect data with a clear lawful basis.</li>
+      <li>Tell people what you collect and why.</li>
+      <li>Honour subject-access and deletion requests within 30 days.</li>
+      <li>Report breaches to the supervisory authority within 72 hours.</li>
+    </ul>
+    <p>Click <strong>Mark complete</strong> below once you've read all slides.</p>
+  </section>
+
+  <div class="nav">
+    <button id="prev" disabled>← Previous</button>
+    <span class="progress" id="page-indicator"></span>
+    <button id="next">Next →</button>
+  </div>
+  <button id="complete" style="margin-top: 16px; display: none;">Mark complete</button>
+  <div class="status" id="status">Initialising SCORM API…</div>
+</main>
+
+<script>
+  // ---- SCORM 1.2 API discovery ----
+  function findAPI(win) {
+    var n = 0;
+    while (typeof win.API === "undefined" && win.parent && win.parent !== win && n < 10) {
+      n++; win = win.parent;
+    }
+    return typeof win.API === "undefined" ? null : win.API;
+  }
+  var API = findAPI(window) || (window.opener ? findAPI(window.opener) : null);
+  var statusEl = document.getElementById("status");
+  var initialised = false;
+
+  function set(key, value) { return API ? API.LMSSetValue(key, value) : "false"; }
+  function get(key)        { return API ? API.LMSGetValue(key)        : "";     }
+  function commit()        { return API ? API.LMSCommit("")           : "false";}
+
+  if (API) {
+    var ok = API.LMSInitialize("");
+    initialised = (ok === "true");
+    if (initialised) {
+      set("cmi.core.lesson_status", "incomplete");
+      commit();
+      statusEl.textContent = "SCORM session started — progress will be tracked.";
+      statusEl.classList.add("ok");
+    } else {
+      statusEl.textContent = "SCORM API found but LMSInitialize returned false.";
+    }
+  } else {
+    statusEl.textContent = "Running outside an LMS (no SCORM API found). Completion won't be reported.";
+  }
+
+  // ---- Slide navigation ----
+  var slides = document.querySelectorAll(".slide");
+  var current = 0;
+  var prev = document.getElementById("prev");
+  var next = document.getElementById("next");
+  var done = document.getElementById("complete");
+  var indicator = document.getElementById("page-indicator");
+  var progress  = document.getElementById("progress");
+
+  function render() {
+    slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+    var label = "Slide " + (current + 1) + " of " + slides.length;
+    indicator.textContent = label;
+    progress.textContent  = label;
+    done.style.display = current === slides.length - 1 ? "inline-block" : "none";
+  }
+  prev.onclick = function () { current = Math.max(0, current - 1); render(); };
+  next.onclick = function () { current = Math.min(slides.length - 1, current + 1); render(); };
+  render();
+
+  // ---- Mark complete ----
+  done.onclick = function () {
+    if (initialised) {
+      set("cmi.core.lesson_status", "completed");
+      set("cmi.core.score.raw", "100");
+      set("cmi.core.score.min", "0");
+      set("cmi.core.score.max", "100");
+      commit();
+      API.LMSFinish("");
+      initialised = false;
+      statusEl.textContent = "Completion reported to Infinity Learn. You can close this window.";
+    } else {
+      statusEl.textContent = "Completion can't be reported (no LMS). Refresh inside the course to retry.";
+    }
+    done.disabled = true;
+  };
+
+  // ---- Persist on unload ----
+  window.addEventListener("beforeunload", function () {
+    if (initialised) { commit(); API.LMSFinish(""); }
+  });
+</script>
+</body>
+</html>

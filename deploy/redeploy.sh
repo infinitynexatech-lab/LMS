@@ -38,6 +38,11 @@ docker compose -f docker-compose.prod.yml exec -T moodle php /tmp/roles.php
 echo "==> Creating demo users…"
 bash seed/users.sh prod
 
+echo "==> Attaching SCORM 1.2 sample to GDPR course…"
+docker compose -f docker-compose.prod.yml cp seed/packages/gdpr-demo.zip moodle:/tmp/gdpr-demo.zip
+docker compose -f docker-compose.prod.yml cp seed/attach_scorm.php       moodle:/tmp/attach_scorm.php
+docker compose -f docker-compose.prod.yml exec -T moodle php /tmp/attach_scorm.php
+
 echo
 echo "==> Redeploy complete. https://${DOMAIN}"
 echo "==> Admin: admin / ${ADMIN_PASSWORD}"
